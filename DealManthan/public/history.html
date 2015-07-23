@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Search History</title>
+
+    <script src="js/d3.js"></script>
+    <script src="js/d3.layout.cloud.js"></script>
+    
+    <!-- core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+    <link href="css/history_styles.css" rel="stylesheet">
+        
+</head>
+<body>
+<header id="header">
+        <nav class="navbar navbar-inverse" role="banner">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="index.html"><img src="images/logo1.gif" alt="logo"></a>
+                </div>
+                
+                <div class="collapse navbar-collapse navbar-right">
+                <ul id="nav_menu" class="nav navbar-nav">
+                        <li><a href="index.html">Home</a></li>
+                        <li style="display: none;"><a href="home.html">Home</a></li>
+                        <li class="active"><a href="history.html">History</a></li>
+                        <li><a href="seller_details.html">Sellers</a></li>
+                        <li><a href="price_range.html">Price Range</a></li>                        
+                        <li><a href="index.html">Sign Out</a></li>  
+                    </ul>
+                </div>
+            </div><!--/.container-->
+        </nav><!--/nav-->
+    </header> <!--/header-->
+
+    <div id="bottom">
+    </div>
+
+<br/><br/><br/>
+<section id="contact-info">
+<div id="word_chart" class="center" align="center">    
+</div>
+</section>
+
+<script>
+
+var temp_arr = JSON.parse(localStorage.getItem(localStorage.userID));
+
+var frequency_list = [];
+
+    for (var key in temp_arr) {
+    var obj = temp_arr[key];
+    frequency_list.push(obj.text);
+    }
+
+  var fill = d3.scale.category20();
+
+  d3.layout.cloud().size([300, 300])
+      .words(frequency_list.map(function(d) {
+        return {text: d, size: 10 + Math.random() * 90};
+      }))
+      .padding(4)
+      .rotate(function() { return ~~(Math.random() * 2) * 90; })
+      .font("Impact")
+      .fontSize(function(d) { return d.size; })
+      .on("end", draw)
+      .start();
+
+  function draw(words) {
+    d3.select("#word_chart").append("svg")
+        .attr("width", 300)
+        .attr("height", 300)
+      .append("g")
+        .attr("transform", "translate(150,150)")
+      .selectAll("text")
+        .data(words)
+      .enter().append("text")
+        .style("font-size", function(d) { return d.size + "px"; })
+        .style("font-family", "Impact")
+        .style("fill", function(d, i) { return fill(i); })
+        .attr("text-anchor", "middle")
+        .attr("transform", function(d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function(d) { return d.text; });
+  }
+</script>
+
+<div id="bottom">
+    </div>
+
+    <footer id="footer" class="midnight-blue">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    &copy; 2014 <a target="_blank" href="index.html" title="E-Commerce Web Crawler">DealManthan</a>. All Rights Reserved.
+                </div>
+            </div>
+        </div>
+    </footer><!--/#footer-->
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.prettyPhoto.js"></script>
+    <script src="js/jquery.isotope.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/wow.min.js"></script>
+    <script src="js/d3.js"></script>
+    <script src="js/d3.layout.cloud.js"></script>
+
+<div style="width: 40%;">
+
+</div>
+
+</body>
+
+
+</html>
+
+
+

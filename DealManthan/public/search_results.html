@@ -1,0 +1,350 @@
+<html>
+
+</html>
+<html style="font-family:verdana">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Search Results</title>
+
+    <!-- core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+    
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.prettyPhoto.js"></script>
+    <script src="js/jquery.isotope.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/wow.min.js"></script>
+    <script type="text/javascript" lang="javascript" 
+       src="http://cdn.gigya.com/JS/socialize.js?apikey=2_Y82PzwJ_chSFImHXaIDJClnLyJzmk-VFOavSsaNTzl6m901s_NNxRAS0xJ3bd3_N">
+    </script>   
+    <script type="text/javascript">
+
+
+
+    // $(document).ready(function() {
+    //     $('#keyword').keypress(function(e) {
+    //         if (e.keyCode == 13)
+    //             $('#search').click();
+    //     });
+    // });
+
+    function comparePrice(a, b) {
+
+        ap = Number(a.price);
+        bp = Number(b.price);
+
+        if (ap < bp)
+            return -1;
+        if (ap > bp)
+            return 1;
+        return 0;
+    }
+
+    // $("#s").keypress(function(e) {
+    //     if (e.which == 13) {
+    //         alert('You pressed enter!');
+    //         $("#search").click();
+    //     }
+    // });
+
+    
+
+
+    $(document).ready(function() {
+
+        var key = localStorage.getItem("product");
+
+        var parameters = {
+            searchKey: key
+        };
+
+        $.get('/search', parameters, function(data) {
+            // alert(data);
+
+            $.each($.parseJSON(data), function(idx, obj) {
+
+
+                if (idx === 'results') {
+
+                    var result = new Array();
+
+                    for (var residx = 0; residx < obj.length; residx++) {
+
+
+
+                        var sitedetails = obj[residx].sitedetails;
+
+                        if (sitedetails != null) {
+
+                            var offerArray = new Array();
+
+                            for (var sitidx = 0; sitidx < sitedetails.length; sitidx++) {
+
+
+                                var latestoffers = sitedetails[sitidx].latestoffers;
+
+
+                                if (latestoffers != null) {
+
+                                    var offer = {
+                                        seller: latestoffers[0].seller,
+                                        price: latestoffers[0].price,
+                                        availability: latestoffers[0].availability,
+                                        url: sitedetails[sitidx].url
+                                    };
+                                    offerArray.push(offer);
+
+                                    for (var latidx = 0; latidx < latestoffers.length; latidx++) {
+                                        // If data needed from each latest offer
+                                    }
+                                }
+                            }
+
+                            offerArray.sort(comparePrice);
+                            var deal = {
+                                image: obj[residx].images,
+                                descprition: obj[residx].description,
+                                name: obj[residx].name,
+                                price: offerArray[0].price,
+                                offers: offerArray
+                            };
+                            result.push(deal);
+
+                        }
+
+                    }
+
+                    result.sort(comparePrice);
+
+                    var seller_list = [];
+                    var price_list = [];;
+                    var isPresent = 0;
+                    localStorage.setItem("seller_list", JSON.stringify(seller_list));
+
+                    for (var i = 0; i < result.length; i++) {
+
+
+                        $("#search_results").append("<br/><img  src=\"" + result[i].image + "\" class=\"img-circle\" alt=\"\" />");
+
+                        $("#search_results").append("<br/><br/><h4><b>Name</b>" + " : " + result[i].name + "<h4>");
+                        var offers = result[i].offers;
+                        for (var j = 0; j < offers.length; j++) {
+
+                            var searched_query = offers[j].seller;
+
+                            for (var key in seller_list) {
+                            var obj = seller_list[key];
+                            if(obj.text == searched_query){
+                            obj.size++;
+                            isPresent = 1;
+                            } 
+                        }
+    
+
+                    if(isPresent == 0){
+                        var element = {"text":searched_query,"size":1};
+                        seller_list.push(element);
+                    }
+
+                    var element = {"text":offers[j].seller,"size":Number(offers[j].price)};
+                    price_list.push(element);
+                    
+    
+                    localStorage.setItem("seller_list", JSON.stringify(seller_list));
+                    localStorage.setItem("price_list", JSON.stringify(price_list));
+
+                            $("#search_results").append("<b>Seller</b>" + " : " + offers[j].seller + "<br/>");
+
+                            $("#search_results").append("<b>Price</b>" + " : $" + offers[j].price + "<br/>");
+                            $("#search_results").append("<b>Availability</b>" + " : " + offers[j].availability + "<br/><br/>");
+                            $("#search_results").append("<button type=\"button\" value="+offers[j].url+" class=\"btn btn-danger\">Share</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type=\"button\" value="+offers[j].url+" class=\"btn btn-info\">View Details</button><br/><br/>");
+
+                            $("#search_results").append("<b>URL</b>" + " : " + offers[j].url + "<br/>");
+
+                            $("#search_results").append("<br/><input type=\"image\" src=\"../images/divider.png\" width=\"400\" height=\"48\"><br/><br/>");
+
+                        }
+
+
+
+                    }
+
+
+
+
+                }
+
+
+            });
+            // $("#results").append(idx + " : " + ((obj[0].sitedetails)[0].latestoffers)[1].seller + "<br/>");
+            // $('#results').html(data);
+
+        });
+
+    $( "#search_results" ).on( "click", "button", function( event ) {
+        event.preventDefault();
+        if($(this).text() == "Share"){
+        var shareURL = $(this).attr("value");
+        showShareUI('simpleShare', shareURL);
+        }else{
+        var viewProductLink = $(this).attr("value");
+        window.open(viewProductLink,"_self"); 
+
+        }
+
+    });
+
+
+    });
+
+
+    //Sharing Functionality
+
+    // Create and Publish User's Action
+        // This method is associated with the "btnPublishAction" click
+        function showShareUI(operationMode, shareURL) {
+
+            // Constructing a UserAction Object
+            var act = new gigya.socialize.UserAction();
+
+            // Setting the title and description 
+            // (will be presented in the preview on the Share UI)
+            act.setTitle("Here is the deal: ");
+            act.setSubtitle("<b>Product Description:<b>");
+
+            // Setting a link back to the publishing source
+            act.setLinkBack(shareURL);
+            
+
+            // Parameters for the showShareUI method, including the UserAction object
+            var params = 
+            {
+                userAction: act  // The UserAction object enfolding the newsfeed data.  
+                ,operationMode: operationMode// Opens the Share Plugin either in Simple or Multiselect mode according to the user connection status. 
+                ,snapToElementID: "btnShare" // Snaps the Simple Share Plugin to the share button
+                ,onError: onError  // onError method will be summoned if an error occurs. 
+                ,onSendDone: onSendDone // onError method will be summoned after 
+                                    // Gigya finishes the publishing process.
+                ,context: operationMode         
+                ,showMoreButton: true // Enable the "More" button and screen
+                ,showEmailButton: true // Enable the "Email" button and screen
+                ,emailBody: "This email is from: $sender$ <br/> Check this out: $URL$ <br/> $userMsg$ <userMsg> <br/> The title is: $title$ <br/> The description is: $description$"
+                ,useHTML: true  // Use the HTML implementation of the Plugin 
+            };
+
+            // Show the "Share" dialog
+            gigya.socialize.showShareUI(params);
+
+        }
+        
+        // onError event handler
+        function onError(event) {
+            alert('An error has occured' + ': ' + event.errorCode + '; ' + event.errorMessage);
+        }
+
+        // onSendDone event handler. 
+        // Displays in the status field, the list of providers to which the newsfeed has been 
+        // successfully published.
+        function onSendDone(event)
+        {
+            document.getElementById('status').style.color = "green";
+            switch(event.context)
+            {
+                case 'simpleShare':
+                    document.getElementById('status').innerHTML = 'Clicked '  + event.providers;
+                    break;
+                default:
+                    document.getElementById('status').innerHTML = 'Share onSendDone' ;
+            }
+        }
+    
+    </script>
+</head>
+
+<body onload="checkLogin();">
+
+    <nav class="navbar navbar-inverse" role="banner">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">
+                    <img src="images/logo1.gif" alt="logo">
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse navbar-right">
+                <ul id="nav_menu" class="nav navbar-nav">
+                    <li><a href="index.html">Home</a></li>
+                        <li style="display: none;"><a href="home.html">Home</a></li>
+                        <li style="display: none;"><a href="history.html">History</a></li>
+                        <li style="display: none;"><a href="seller_details.html">Sellers</a></li>
+                        <li style="display: none;"><a href="price_range.html">Price Range</a></li>
+                        <li style="display: none;"><a href="index.html">Sign Out</a></li>
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="contact-us.html">Contact</a></li>                         
+                </ul>
+            </div>
+        </div>
+        <!--/.container-->
+    </nav>
+    <!--/nav-->
+    </header>
+
+    
+<div class="pdbgimg">
+
+    <section id="about-us">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-11 wow fadeInDown">
+                <h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Search Results</b></h2>
+                    <div class="clients-comments text-center">                      
+                        <ul id="search_results">  
+
+                        </ul>    
+                    </div>
+                </div>     
+           </div>
+        </div>
+    </section>    
+
+</div>
+
+
+
+<!--/#bottom-->
+    <footer id="footer" class="midnight-blue">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    &copy; 2014 <a target="_blank" href="index.html" title="E-Commerce Web Crawler">DealManthan</a>. All Rights Reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!--/#footer-->
+
+
+<script src="js/main.js"></script>
+
+
+</body>
+
+</html>
